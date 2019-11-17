@@ -1,2 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>siteswap simulator</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+
+<p>Input siteswap (e.g: 441, 423, 53, 453, 5551, 55514):</p>
+<input id="siteswap"> <button type="button" onclick="input_siteswap()">GO!</button>
+<p id="answer"></p>
+
 <canvas id="mycanvas" width=680px height=800px></canvas>
 <script src="siteswap.js"></script>
+
+<script>
+function input_siteswap() {
+	let help = "Please input one of the above siteswap numbers";
+	let str = document.getElementById("siteswap").value;
+	console.log(typeof str);
+	let siteswap = [];
+	let patt = new RegExp("[1-5]");
+	for (let i = 0; i < str.length; i++) {
+		if (patt.test(str[i])) {
+			siteswap.push(parseInt(str[i]));
+		} else {
+			document.getElementById("answer").innerHTML = help;
+			return;
+		}
+	}
+	if (siteswap.length === 0) {
+		document.getElementById("answer").innerHTML = help;
+		return;
+	}
+	start_game(siteswap);
+}
+</script>
+
+</body>
+</html>

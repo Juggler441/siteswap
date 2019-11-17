@@ -116,12 +116,12 @@ function draw() {
 		let own_siteswap = siteswap[loop_count_i()];
 
 		/* select a ball: find the first one that's not flying and
-		in the right hand and throw it. Asumes no two consecutive
+		in the correct hand and throw it. Asumes no two consecutive
 		throws from the same hand */
 		let ball = index_list(filter_list(balls, (ball) => {
 			if (! ball.flying && ball.hand === global_hand)
 				return true;
-			else return false;
+			return false;
 		}), 0);
 		global_hand = ! global_hand;
 		//let ball = index_list(balls, loop_count_n());
@@ -160,28 +160,32 @@ function draw() {
 			}
 		}
 	});
-	window.requestAnimationFrame(draw);
+	last_request = window.requestAnimationFrame(draw);
 }
 
 // init global variables
 let canvas = document.getElementById("mycanvas");
 let ctx = canvas.getContext("2d");
-/* other siteswaps that look good:
-let siteswap = [4, 4, 1];
-let siteswap = [4, 2, 3];
-let siteswap = [5, 3];
-let siteswap = [4, 5, 3];
-let siteswap = [5, 5, 5, 1];
-let siteswap = [5, 5, 5, 1, 4];
-*/
-let siteswap = [5]; // TODO: form entry
+// default values
+let siteswap = [5];
 let n_balls = avg(siteswap);
 let balls = init_balls({}, n_balls);
 let cicles = 0;
 let global_hand = true; // used when selecting which ball to throw
 let loop_count_i = loop_count(siteswap.length);
-
+let last_request = 0;
 draw();
+
+function start_game(form_siteswap) {
+	window.cancelAnimationFrame(last_request);
+	siteswap = form_siteswap;
+	n_balls = avg(siteswap);
+	balls = init_balls({}, n_balls);
+	cicles = 0;
+	global_hand = true; // used when selecting which ball to throw
+	loop_count_i = loop_count(siteswap.length);
+	draw();
+}
 
 function test_list() {
 	// prints: numbers from 0 to 2, 1 and 2
