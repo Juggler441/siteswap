@@ -68,7 +68,7 @@ function background(color) {
 
 function reset_ball(ball) {
 	ball.y = canvas.height;
-	//ball.hand = !ball.hand;
+	//ball.hand = ! all.hand;
 	if (ball.hand) {
 		ball.x = 2 * canvas.width / 3; // right
 	} else {
@@ -87,38 +87,67 @@ function init_balls(balls, n_balls) {
 	// from the viewers perspective
 	map_list(balls, (ball) => { // set alternating hands
 		ball.hand = hand;
-		hand = !hand;
+		hand = ! hand;
 	});
 	map_list(balls, reset_ball);
 	return balls;
 }
 
 function draw() {
+	let r = 10;
+	//let fgcolor = "#dd88dd"; // TODO fill circles
+	let bgcolor = "#ccddee";
+	let ddy = 0.15;
+
+	function dy(siteswap) {
+		return - ((siteswap - 2) * 5);
+	}
+
+	function dx(siteswap) {
+		if (siteswap === 3) {
+			return 4;
+		}
+		return 1.7;
+	}
+
 	cicles++;
 	if (cicles > 60) {
 		cicles = 0;
 		let own_siteswap = siteswap[loop_count_i()];
-		let ball = index_list(balls, loop_count_n());
+
+		/* select a ball: find the first one that's not flying and
+		in the right hand and throw it. Asumes no two consecutive
+		throws from the same hand */
+		let ball = index_list(filter_list(balls, (ball) => {
+			if (! ball.flying && ball.hand === global_hand)
+				return true;
+			else return false;
+		}), 0);
+		global_hand = ! global_hand;
+		//let ball = index_list(balls, loop_count_n());
+
 		if (ball === null) {
 			console.log("ERROR");
 			return null; // exits the requestAnimationFrame loop
 		}
+
 		ball.flying = true;
 		if (! ball.hand && is_even(own_siteswap)) {
-			ball.dx = -dx / 2;
+			ball.dx = -dx(own_siteswap) / 2;
 		} else if (ball.hand && is_even(own_siteswap)) {
-			ball.dx = dx / 2;
+			ball.dx = dx(own_siteswap) / 2;
 		} else if (! ball.hand && ! is_even(own_siteswap)) {
-			ball.dx = dx;
+			ball.dx = dx(own_siteswap);
 		} else { // if (ball.hand && ! is_even(own_siteswap)) {
-			ball.dx = -dx;
+			ball.dx = -dx(own_siteswap);
 		}
 		if (! is_even(own_siteswap)) {
-			ball.hand = !ball.hand; // switch hands after throwing
+			ball.hand = ! ball.hand; // switch hands after throwing
 		}
 		ball.dy = dy(own_siteswap);
 		ball.ddy = ddy; // redundant?
 	}
+
 	background(bgcolor);
 	map_list(balls, (ball) => {
 		if (ball.flying) {
@@ -137,25 +166,20 @@ function draw() {
 // init global variables
 let canvas = document.getElementById("mycanvas");
 let ctx = canvas.getContext("2d");
-//let siteswap = [4, 5, 3]; // TODO: form entry
-//let siteswap = [5, 3];
-let siteswap = [5];
+/* other siteswaps that look good:
+let siteswap = [4, 4, 1];
+let siteswap = [4, 2, 3];
+let siteswap = [5, 3];
+let siteswap = [4, 5, 3];
+let siteswap = [5, 5, 5, 1];
+let siteswap = [5, 5, 5, 1, 4];
+*/
+let siteswap = [5]; // TODO: form entry
 let n_balls = avg(siteswap);
 let balls = init_balls({}, n_balls);
 let cicles = 0;
-let loop_count_n = loop_count(n_balls);
+let global_hand = true; // used when selecting which ball to throw
 let loop_count_i = loop_count(siteswap.length);
-
-// this should be in draw()
-let r = 10;
-//let fgcolor = "#dd88dd"; // TODO fill circles
-let bgcolor = "#ccddee";
-let dx = 1.7;
-let ddy = 0.15;
-function dy(siteswap) {
-	return - ((siteswap - 2) * 5);
-}
-// till here
 
 draw();
 
